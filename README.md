@@ -1,2 +1,2 @@
-# proiecttestare
+# PROIECT TESTARE
 Proiect Testare FSEGA 2024
