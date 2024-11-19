@@ -6,20 +6,19 @@ $username = 'root';
 
 $password = '';
 
-$db = 'calarim_impreuna';
+$database= 'calarim_impreuna';
 try {
  
- $pdo = new PDO("mysql:host=$hostname;dbname=$db", $username, $password);
+ $db = new PDO("mysql:host=$hostname;dbname=$database;charset=utf8", $username, $password);
 
  
- $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
- echo 'Conectat la baza de date: ' . $db;
 
  
 } catch (PDOException $e) {
- echo 'Nu se poate conecta la baza de date: ' . $e->getMessage();
- exit();
-}
+ die("Conexiunea la baza de date a esuat:") . $e->getMessage();
 
+}
 ?>
