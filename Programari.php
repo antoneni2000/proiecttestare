@@ -63,6 +63,7 @@ if (!empty($message)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href = "clrimpreuna.css">
     <title>Programare Călărie</title>
     <style>
         body {
@@ -97,7 +98,19 @@ if (!empty($message)) {
     </style>
 </head>
 <body>
-<h1>Programare pentru călărie</h1>
+    <header>
+        <h1>Programare pentru călărie</h1>
+    </header>
+    <ul>
+			<li><a class="active" href="homepage.html">Home Page</a></li>
+			<li><a href="LogIn.php">Log In</a></li>
+			<li><a href="signup.html">Sign Up</a></li>
+			<li><a href="Programari.php">Programeaza-te</a></li>
+			<li><a href="educational.html">Stiai ca?</a></li>
+	</ul>
+    <div>
+		<img src="HomePage.jpg" style="height:200px; width:400px">
+	</div>
 <form action = "programari.php" method="post">
     <label for="nume">Nume complet:</label>
     <input type="text" id="nume" name="nume" required>
