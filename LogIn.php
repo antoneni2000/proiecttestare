@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-include_once "ConectareBD.php";  //trebuie sa cream pagina
+include_once "ConectareBD.php";  
 
 $error = '';
 
@@ -9,20 +9,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $username = $_POST['username'];
     $password = $_POST['password'];
+    $db= new DBController();
 
     
     $query = "SELECT * FROM users WHERE username = :username";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':username', $username);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $db->getDBResult($query, [$username]);
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['username'] = $user['username'];
+    if ($user && password_verify($password, $user[0]['password'])) {
+        $_SESSION['username'] = $user[0]['username'];
         header("Location: home.php");
-        exit();
+        exit;
     } else {
-        $error = "Username a=sau parola gresita.";
+        $error = "Username sau parola gresita.";
     }
 }
 ?>
@@ -36,12 +34,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="clrimpreuna.css">
 </head>
 <body>
+    <header>
+        <h1>Calarim Impreuna</h1>
+    </header>
+    <ul>
+			<li><a class="active" href="homepage.html">Home Page</a></li>
+			<li><a href="login.html">Log In</a></li>
+			<li><a href="signup.html">Sign Up</a></li>
+			<li><a href="programari.html">Programeaza-te</a></li>
+			<li><a href="educational.html">Stiai ca?</a></li>
+    </ul>
     <div class="login">
-        <h2 class="text-title">Login</h2>
+        <h2 class="login-title">Login</h2>
         <?php if ($error): ?>
             <div class="alert"><?php echo $error; ?></div>
         <?php endif; ?>
-        <form method="POST" action="login.php">
+        <form method="POST">
             <div class="form-group">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" name="username" class="form-input" id="username" required>
