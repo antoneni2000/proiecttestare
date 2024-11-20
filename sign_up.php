@@ -1,5 +1,5 @@
 <?php
-require_once 'ConectareDB.php';
+require_once 'ConectareBD.php';
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$nume= $_POST['nume'];
