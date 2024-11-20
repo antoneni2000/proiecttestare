@@ -1,8 +1,6 @@
 <?php
-session_start();
-include_once "ConectareBD.php";
+require_once 'ConectareDB.php';
 
-$error=' ';
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$nume= $_POST['nume'];
 	$data_nasterii= $_POST['data_nasterii'];
@@ -11,24 +9,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$Username= $_POST['Username'];
 	$parola = password_hash($_POST['parola'], PASSWORD_DEFAULT);
 	$NivelCompetenta= $_POST['NivelCompetenta'];
-	 $stmt = $conn->prepare("INSERT INTO users (nume, data_nasterii, email, telefon, Username, parola, NivelCompetenta) VALUES (?, ?, ?, ?, ?, ?, ?)");
-	 if ($stmt) {
-		  $stmt->bind_param("ssssss", $nume, $data_nasterii, $email, $telefon, $Username, $parola, $NivelCompetenta);
-		   if ($stmt->execute()) {
-            echo "Înregistrarea a fost adăugată cu succes!";
-        } else {
-            $error = "Eroare la inserarea datelor: " . $stmt->error;
-        }
- $stmt->close();
-    } else {
-        $error = "Eroare la pregătirea declarației SQL: " . $conn->error;
-    }
+	$db=new DBController();
+	$query="INSERT INTO users (nume, data_nasterii, email, telefon, Username, parola, NivelCompetenta) VALUES (?, ?, ?, ?, ?, ?, ?)";
 	
-    $conn->close();
+	 try {
+		  $db->updateDB($query, [$nume, $data_nasterii, $email, $telefon, $Username, $parola, $NivelCompetenta]);
+           	  echo "Înregistrarea a fost adăugată cu succes!";
+        } catch(Exception $e) {
+            echo "Eroare la inserarea datelor: " . $e->getMessage();
+        }
+ 
 }
 
-if ($error) {
-    echo "<p style='color:red;'>$error</p>";
+if ($e) {
+    echo "<p style='color:red;'>$e</p>";
 }	
 ?>
 
