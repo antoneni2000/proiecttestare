@@ -1,137 +1,133 @@
 <?php
-
 session_start();
 
-include_once "ConectareBD.php";
+// Includem clasa DBController
+include_once "DBController.php"; 
 
-$error = '';
+// Creăm o instanță a clasei DBController
+$db = new DBController();
 
+
+$message = '';
+$horses = [];
+
+try {
+    // Obține lista de cai din baza de date
+    $query = "SELECT HorseID, Nume FROM horses";
+    $horses = $db->getDBResult($query);
+} catch (Exception $e) {
+    $message = "Eroare la încărcarea listei de cai: " . $e->getMessage();
+}
+
+// Verificăm dacă formularul a fost trimis	
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nume = trim($_POST['nume']);
-    $email = trim($_POST['email']);
-    $telefon = trim($_POST['telefon']);
-    $data_programare = $_POST['data_programare'];
-    $ora = $_POST['ora'];
-    $mesaj = trim($_POST['mesaj']);
+    // Variabilele PHP pentru datele primite din formular
+    $data_programare = $_POST['data_programare'] ?? '';
+    $ora = $_POST['ora'] ?? '';
+    $mesaj = trim($_POST['mesaj'] ?? '');
+    $HorseID = $_POST['HorseID'] ?? '';
+    $UserID = $_SESSION['UserID'];
 
-    // Validare
-    if (empty($nume) || empty($email) || empty($data_programare) || empty($ora)) {
+    // Validare date
+    if (empty($data_programare) || empty($ora) || empty($HorseID) || empty($UserID)) {
         $message = "Toate câmpurile obligatorii trebuie completate.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $message = "Adresa de email este invalidă.";
     } else {
-        //ziua saptamanii, ora si data selectata
+        // Validare intervale orare
         $ziua_saptamanii = date('N', strtotime($data_programare)); // 1 = Luni, 7 = Duminică
         $ora_selectata = (int)substr($ora, 0, 2); // primele 2 caractere din 'HH:MM'
-        // intervale orare:
-        if (($ziua_saptamanii >= 1 && $ziua_saptamanii <= 5 && ($ora_selectata < 15 || $ora_selectata >= 19)) || // Luni-Vineri 15:00-19:00
-            ($ziua_saptamanii == 6 || $ziua_saptamanii == 7) && ($ora_selectata < 9 || $ora_selectata >= 12)) { // Sâmbătă-Duminică 09:00-12:00
-            $message = "Ora selectată nu este validă pentru această zi. Luni-Vineri între 15:00 și 19:00 sau Sâmbătă-Duminică între 09:00 și 12:00.";
+        
+        if (($ziua_saptamanii >= 1 && $ziua_saptamanii <= 5 && ($ora_selectata < 15 || $ora_selectata >= 19)) ||
+            ($ziua_saptamanii == 6 || $ziua_saptamanii == 7) && ($ora_selectata < 9 || $ora_selectata >= 12)) {
+            $message = "Ora selectată nu este validă pentru această zi.";
         } else {
             try {
-                //adaugam date in baza de date
-                $query = "INSERT INTO programari (nume, email, telefon, data_programare, ora, mesaj) 
-                      VALUES (:nume, :email, :telefon, :data_programare, :ora, :mesaj)";
-                $stmt = $db->prepare($query);
-                //leg parametrii
-                $stmt->bindParam(':nume', $nume);
-                $stmt->bindParam(':email', $email);
-                $stmt->bindParam(':telefon', $telefon);
-                $stmt->bindParam(':data_programare', $data_programare);
-                $stmt->bindParam(':ora', $ora);
-                $stmt->bindParam(':mesaj', $mesaj);
+                // Inserare programare în baza de date
+                $query = "INSERT INTO programari (data_programare, ora, mesaj, HorseID, UserID) 
+                          VALUES (:data_programare, :ora, :mesaj, :HorseID, :UserID)";
+                $params = [
+                    ':data_programare' => $data_programare,
+                    ':ora' => $ora,
+                    ':mesaj' => $mesaj,
+                    ':HorseID' => $HorseID,
+                    ':UserID' => $UserID
+                ];
 
-                if ($stmt->execute()) {
-                    $message = "Programarea a fost salvată cu succes!";
-                } else {
-                    $message = "A apărut o eroare la salvarea programării.";
-                }
-            } catch (PDOException $e) {
+                // Executăm inserarea în baza de date
+                $db->updateDB($query, $params); 
+
+                // Verificăm dacă trigger-ul a fost activat
+                // De obicei trigger-ele nu dau feedback direct, dar dacă nu a apărut o eroare, presupunem că a fost activat
+                $message = "Programarea a fost salvată cu succes!";
+            } catch (Exception $e) {
                 $message = "Eroare la conexiunea cu baza de date: " . $e->getMessage();
             }
         }
     }
 }
-if (!empty($message)) {
-    echo "<p>$message</p>";
-}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel = "stylesheet" href = "clrimpreuna.css">
+    <link rel="stylesheet" href="clrimpreuna.css">
     <title>Programare Călărie</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            max-width: 600px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-top: 10px;
-        }
-        input, textarea {
-            margin-bottom: 10px;
-            padding: 10px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 <body>
     <header>
-        <h1>Programare pentru călărie</h1>
+        <div style="padding: 10px;">
+            <h1>Programare pentru călărie</h1>
+        </div>
     </header>
     <ul>
-			<li><a class="active" href="homepage.html">Home Page</a></li>
-			<li><a href="LogIn.php">Log In</a></li>
-			<li><a href="signup.html">Sign Up</a></li>
-			<li><a href="Programari.php">Programeaza-te</a></li>
-			<li><a href="educational.html">Stiai ca?</a></li>
-	</ul>
+        <li><a class="active" href="homepage.html">Home Page</a></li>
+        <li><a href="LogIn.php">Log In</a></li>
+        <li><a href="sign_up.php">Sign Up</a></li>
+        <li><a href="Programari.php">Programeaza-te</a></li>
+        <li><a href="educational.html">Stiai ca?</a></li>
+    </ul>
     <div>
-		<img src="HomePage.jpg" style="height:200px; width:400px">
-	</div>
-<form action = "programari.php" method="post">
-    <label for="nume">Nume complet:</label>
-    <input type="text" id="nume" name="nume" required>
+        <img src="HomePage.jpg" style="height:200px; width:400px">
+    </div>
+    <div class="my-div">
+        <form action="programari.php" method="post">
+            <div class="form-group">
+                <label class="form-label" for="nume">Nume complet:</label>
+                <input class="form-input" type="text" id="nume" name="nume" required>
+            </div>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
+            <div class="form-group">
+                <label class="form-label" for="data_programare">Data programării:</label>
+                <input class="form-input" type="date" id="data_programare" name="data_programare" required>
+            </div>
 
-    <label for="telefon">Telefon:</label>
-    <input type="text" id="telefon" name="telefon">
+            <div class="form-group">
+                <label class="form-label" for="ora">Ora:</label>
+                <input class="form-input" type="time" id="ora" name="ora" required>
+            </div>
 
-    <label for="data_programare">Data programării:</label>
-    <input type="date" id="data_programare" name="data_programare" required>
+            <div class="form-group">
+                <label class="form-label" for="mesaj">Mesaj (opțional):</label>
+                <textarea class="form-input" id="mesaj" name="mesaj" rows="4"></textarea>
+            </div>
 
-    <label for="ora">Ora:</label>
-    <input type="time" id="ora" name="ora" required>
+            <div class="form-group">
+                <label class="form-label" for="HorseID">Selectează calul:</label>
+                <select name="HorseID" class="form-input" required>
+                    <?php
+                    foreach ($horses as $horse) {
+                        echo "<option value='" . $horse['HorseID'] . "'>" . $horse['Nume'] . "</option>";
+                    }
+                    ?>
+                </select>
+            </div>
 
-    <label for="mesaj">Mesaj (opțional):</label>
-    <textarea id="mesaj" name="mesaj" rows="4"></textarea>
-
-    <button type="submit">Programează-te</button>
-</form>
+            <button class="btn-submit" type="submit">Programează-te</button>
+        </form>
+        <?php if ($message): ?>
+            <p><?php echo $message; ?></p>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
-

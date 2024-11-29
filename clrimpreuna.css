@@ -1,72 +1,134 @@
 body {
     background-color: #eebb90;
 }
+
 ul {
-    list-style-type: none;
-    margin: 100;
+    list-style-type: none;  /* Eliminăm bullet points */
+    margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #592f0d;
+    position: fixed;
+    top: 0;
+    width: 100%; /* Asigură-te că bara de navigare ocupă întreaga lățime a ecranului */
 }
+
 h1 {
-	color: #592f0d;
-	padding: 20px;
-	text-align: center;
+    color: #592f0d;
+    padding: 20px;
+	margin: 20px;
+    text-align: center;
 }
+
+/* Schimbăm float cu inline-block */
 li {
-    float: left;
+    display: inline-block; /* Elementele <li> vor fi afișate pe orizontală */
+    margin-right: 10px; /* Adăugăm un mic spațiu între elementele de meniu */
 }
 
 li a {
     display: block;
     color: white;
     text-align: center;
-    padding: 14px 16px;
+    padding: 15px 20px;
     text-decoration: none;
-	
 }
 
+/* Schimbăm culoarea la hover */
 li a:hover {
-    background-color: #2c1807;
+    background-color: #111;
+}
+
+label {
+            margin-top: 10px;
+}
+input, textarea {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+}
+button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+button:hover {
+     background-color: #0056b3;
 }
 
 .registration-form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 300px;
-			position: absolute;
-			top: 65%;
-			left: 50%;
-			transform: translate(-50%, -50%);
+    color: white;
 }
-.registration-form h2 {
-            margin-bottom: 20px;
-            text-align: center;
+
+.login {
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.login-title {
+    font-size: 24px;
+    margin-bottom: 1rem;
+    color: #2c1807;
+}
+
 .form-group {
-            margin-bottom: 15px;
+    margin-bottom: 10px;
+    text-align: left;
 }
-.form-group label {
-            display:block;
-            font-weight: bold;
-				
+
+.form-label {
+    font-weight: bold;
+    color: #2c1807;
 }
-.form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+
+.form-input {
+    width: 99%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
 }
-.form-group input[type="submit"] {
-            background-color: #2c1807;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
+
+.btn-submit {
+    width: 99%;
+    padding: 10px;
+    background-color: #2c1807;
+    color: #ffffff;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
 }
-.form-group input[type="submit"]:hover {
-            background-color: #eebb90;
+
+.btn-submit:hover {
+    background-color: rgb(34, 20, 20);
+}
+
+.alert {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    padding: 50px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+.my-div {
+    width: 80%;          /* Lățimea va fi 80% din lățimea ecranului */
+    max-width: 800px;    /* Lățimea maximă va fi de 800px */
+    margin: 20px auto;   /* Centrarea div-ului pe ecran (spatiu pe sus și jos de 20px) */
+    padding: 10px;       /* Adaugă puțin padding pentru conținut */
+}
+
+form {
+    display: flex;
+    flex-direction: column; /* Pune elementele de formă pe verticală */
+    gap: 20px; /* Spațiu între elementele de formular */
 }

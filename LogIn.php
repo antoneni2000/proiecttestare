@@ -1,32 +1,36 @@
 <?php
-
 session_start();
-include_once "ConectareBD.php";  
 
+include_once "DBController.php";
+
+$db = new DBController();
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $db= new DBController();
 
-    
-    $query = "SELECT * FROM users WHERE username = :username";
-    $user = $db->getDBResult($query, [$username]);
+    try {
+        $query = "SELECT * FROM users WHERE NumeUtilizator = :username";
+        $params = [':username' => $username];
+        $user = $db->getDBResult($query, $params);
 
-    if ($user && password_verify($password, $user[0]['password'])) {
-        $_SESSION['username'] = $user[0]['username'];
-        header("Location: home.php");
-        exit;
-    } else {
-        $error = "Username sau parola gresita.";
+        if ($user && password_verify($password, $user[0]['ParolaHash'])) {
+            $_SESSION['username'] = $user[0]['NumeUtilizator'];
+            $_SESSION['UserID'] = $user[0]['UserID'];
+            header("Location: hpli.php");
+            exit();
+        } else {
+            $error = "Username sau parola gresita.";
+        }
+    } catch (Exception $e) {
+        $error = "Eroare la verificarea utilizatorului: " . $e->getMessage();
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,29 +39,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <header>
-        <h1>Calarim Impreuna</h1>
+	<div style="padding: 10px;">
+        <h1> Log In</h1>
+		</div>
     </header>
+
     <ul>
-			<li><a class="active" href="homepage.html">Home Page</a></li>
-			<li><a href="login.html">Log In</a></li>
-			<li><a href="signup.html">Sign Up</a></li>
-			<li><a href="programari.html">Programeaza-te</a></li>
-			<li><a href="educational.html">Stiai ca?</a></li>
+        <li><a class="active" href="homepage.html">Home Page</a></li>
+        <li><a href="LogIn.php">Log In</a></li>
+        <li><a href="sign_up.php">Sign Up</a></li>
+        <li><a href="educational.html">Știai că?</a></li>
     </ul>
+
     <div class="login">
-        <h2 class="login-title">Login</h2>
+        
         <?php if ($error): ?>
-            <div class="alert"><?php echo $error; ?></div>
+            <div class="alert"><?= $error; ?></div>
         <?php endif; ?>
-        <form method="POST">
+
+        <form action="LogIn.php" method="POST">
             <div class="form-group">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" name="username" class="form-input" id="username" required>
+                <label for="username">Nume Utilizator</label>
+                <input type="text" id="username" name="username" class="form-input" required>
             </div>
+
             <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" class="form-input" id="password" required>
+                <label for="password">Parola</label>
+                <input type="password" id="password" name="password" class="form-input" required>
             </div>
+
             <button type="submit" class="btn-submit">Login</button>
         </form>
     </div>
